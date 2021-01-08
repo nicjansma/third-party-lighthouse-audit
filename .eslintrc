@@ -1,0 +1,19 @@
+{
+    "extends": "nicjansma",
+    "env": {
+        "es6": true,
+        "node": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018
+    },
+    "rules": {
+        // Enabled over nicjansma
+        "require-jsdoc": 1,
+
+        // Disabled over nicjansma
+        "strict": 0,
+        "no-console": 0,
+        "no-process-exit": 0
+    }
+}

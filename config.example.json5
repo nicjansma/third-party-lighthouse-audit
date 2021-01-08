@@ -1,0 +1,41 @@
+{
+    url: "https://example.com/",
+    outputDir: "results",
+    iterations: 2,
+    lighthouse: {
+        extends: "lighthouse:default",
+        passes: [{
+            recordTrace: true,
+            /* pauseAfterLoadMs: 5000, */
+            /* networkQuietThresholdMs: 5000 */
+        }],
+        onlyCategories: ["performance"],
+        /* logLevel: "verbose" */
+        /* logLevel: "info" */
+        /* logLevel: "error" */
+        /* logLevel: "silent" */
+    },
+    runs: [
+        {
+            name: "baseline"
+        },
+        /* {
+            name: "without-xyz",
+            block: [
+                "xyz.com",
+            ]
+        } */
+        /* {
+            name: "with-script-inline",
+            script: {
+                contentFile: "script.js"
+            }
+        }, */
+        /* {
+            name: "with-script-url",
+            script: {
+                url: "https://othersite.com/example.js"
+            }
+        } */
+    ]
+}
