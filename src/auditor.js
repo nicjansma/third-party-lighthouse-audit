@@ -1,14 +1,14 @@
 //
 // Imports
 //
-const puppeteer = require("puppeteer");
-const fs = require("fs");
-const path = require("path");
-const lighthouse = require("lighthouse");
-const chalk = require("chalk");
-const { URL } = require("url");
-const stats = require("stats-lite");
-const dataUriToBuffer = require("data-uri-to-buffer");
+import { launch } from "puppeteer";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { join } from "path";
+import lighthouse from "lighthouse";
+import chalk from "chalk";
+import { URL } from "url";
+import { median, stdev } from "stats-lite";
+import dataUriToBuffer from "data-uri-to-buffer";
 
 //
 // Functions
@@ -38,16 +38,16 @@ Auditor.prototype.run = async function() {
     //
     // Setup output directories
     //
-    const outputDir = path.join(globalConfig.outputDir || "results");
-    if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir);
+    const outputDir = join(globalConfig.outputDir || "results");
+    if (!existsSync(outputDir)) {
+        mkdirSync(outputDir);
     }
 
     for (const run of globalConfig.runs) {
-        run.outputDir = path.join(outputDir, run.name);
+        run.outputDir = join(outputDir, run.name);
 
-        if (!fs.existsSync(run.outputDir)) {
-            fs.mkdirSync(run.outputDir);
+        if (!existsSync(run.outputDir)) {
+            mkdirSync(run.outputDir);
         }
 
         runResults[run.name] = [];
@@ -58,12 +58,12 @@ Auditor.prototype.run = async function() {
     var runScriptAdd = globalConfig.script || [];
 
     // Use Puppeteer to launch headful Chrome and don't use its default 800x600 viewport.
-    const browser = await puppeteer.launch({
+    const browser = await launch({
         headless: true,
         defaultViewport: null,
     });
 
-    // Wait for Lighthouse to open url, then inject our stylesheet.
+    // Wait for Lighthouse to open url
     browser.on("targetchanged", async target => {
         const page = await target.page();
 
@@ -72,26 +72,31 @@ Auditor.prototype.run = async function() {
 
             page.on("request", (request) => {
                 /* eslint-disable-next-line no-underscore-dangle */
-                if (request._interceptionHandled) {
+                if (request.isInterceptResolutionHandled()) {
                     return;
                 }
 
                 for (var i = 0; i < runBlockList.length; i++) {
                     if (request.url().indexOf(runBlockList[i]) !== -1) {
                         console.log(">>", request.method(), request.url(), chalk.red(`SKIPPED (${runBlockList[i]})`));
+
                         request.abort();
+
                         return;
                     }
                 }
 
                 console.log(">>", request.method(), request.url(), chalk.green("ALLOWED"));
+
                 request.continue();
+
+                return;
             });
 
             if (runScriptAdd) {
                 if (runScriptAdd.contentFile) {
                     // load from disk instead
-                    runScriptAdd.content = fs.readFileSync(runScriptAdd.contentFile, "utf8");
+                    runScriptAdd.content = readFileSync(runScriptAdd.contentFile, "utf8");
                     delete runScriptAdd.contentFile;
                 }
 
@@ -125,30 +130,35 @@ Auditor.prototype.run = async function() {
 
             console.log(`Writing results to ${run.outputDir}/...`);
 
-            fs.writeFileSync(
-                path.join(run.outputDir, `${iteration}.json`),
+            writeFileSync(
+                join(run.outputDir, `${iteration}.json`),
                 JSON.stringify(lhr, null, 2),
                 "utf8");
 
-            fs.writeFileSync(
-                path.join(run.outputDir, `${iteration}-artifacts.json`),
+            writeFileSync(
+                join(run.outputDir, `${iteration}-artifacts.json`),
                 JSON.stringify(artifacts, null, 2),
                 "utf8");
 
             if (lhr && lhr.audits && lhr.audits["final-screenshot"]) {
-                var screenShotBuff = dataUriToBuffer(lhr.audits["final-screenshot"].details.data);
-                fs.writeFileSync(
-                    path.join(run.outputDir, `${iteration}.jpg`),
-                    screenShotBuff,
-                    "utf8");
+                if (lhr.audits["final-screenshot"].errorMessage) {
+                    console.log(chalk.yellow("Warning! " + lhr.audits["final-screenshot"].errorMessage));
+                } else {
+                    var screenShotBuff = dataUriToBuffer(lhr.audits["final-screenshot"].details.data);
+
+                    writeFileSync(
+                        join(run.outputDir, `${iteration}.jpg`),
+                        screenShotBuff,
+                        "utf8");
+                }
             }
 
             if (artifacts &&
                 artifacts.traces &&
                 artifacts.traces.defaultPass &&
                 artifacts.traces.defaultPass.traceEvents) {
-                fs.writeFileSync(
-                    path.join(run.outputDir, `${iteration}-trace.json`),
+                writeFileSync(
+                    join(run.outputDir, `${iteration}-trace.json`),
                     JSON.stringify(artifacts.traces.defaultPass.traceEvents, null, 0),
                     "utf8");
             }
@@ -173,8 +183,8 @@ Auditor.prototype.run = async function() {
         });
 
         for (const [catName, values] of Object.entries(categories)) {
-            console.log(`${catName}: median: ${stats.median(values)}, ` +
-                `stddev: ${parseFloat(stats.stdev(values)).toFixed(3)}`);
+            console.log(`${catName}: median: ${median(values)}, ` +
+                `stddev: ${parseFloat(stdev(values)).toFixed(3)}`);
 
             console.log(`> ${values.join(", ")}`);
         }
@@ -186,4 +196,4 @@ Auditor.prototype.run = async function() {
 //
 // Exports
 //
-module.exports = Auditor;
+export default Auditor;

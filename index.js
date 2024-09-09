@@ -2,10 +2,10 @@
 //
 // Imports
 //
-const fs = require("fs");
-const JSON5 = require("json5");
+import { readFileSync } from "fs";
+import json5 from "json5";
 
-const Auditor = require("./src/auditor");
+import Auditor from "./src/auditor.js";
 
 // for debugging
 process.on("unhandledRejection", r => console.error(r));
@@ -19,8 +19,8 @@ if (process.argv.length <= 2) {
 const configFile = process.argv[2];
 
 // load the config file
-const fileContents = fs.readFileSync(configFile, "utf-8");
-const configJson = JSON5.parse(fileContents);
+const fileContents = readFileSync(configFile, "utf-8");
+const configJson = json5.parse(fileContents);
 
 // call Auditor
 (async() => {
