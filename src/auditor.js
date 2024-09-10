@@ -122,6 +122,7 @@ Auditor.prototype.run = async function() {
                 ... {
                     port: (new URL(browser.wsEndpoint())).port,
                     output: "json",
+                    extraHeaders: globalConfig.extraHeaders || []
                 },
                 ... globalConfig.lighthouse
             };
