@@ -1,6 +1,6 @@
 {
   "name": "third-party-lighthouse-audit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Runs a Lighthouse Audit with third-parties added or removed",
   "exports": "./index.js",
   "type": "module",
