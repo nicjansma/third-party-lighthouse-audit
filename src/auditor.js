@@ -57,11 +57,14 @@ Auditor.prototype.run = async function() {
     var runBlockList = globalConfig.block || [];
     var runScriptAdd = globalConfig.script || [];
 
-    // Use Puppeteer to launch headful Chrome and don't use its default 800x600 viewport.
-    const browser = await launch({
+    // Default: Use Puppeteer to launch headless Chrome and don't use its default 800x600 viewport
+    const browserLaunch = globalConfig.browserLaunch || {
         headless: true,
-        defaultViewport: null,
-    });
+        defaultViewport: null
+    };
+
+    // launch!
+    const browser = await launch(browserLaunch);
 
     // Wait for Lighthouse to open url
     browser.on("targetchanged", async target => {
@@ -131,15 +134,27 @@ Auditor.prototype.run = async function() {
 
             console.log(`Writing results to ${run.outputDir}/...`);
 
-            writeFileSync(
-                join(run.outputDir, `${iteration}.json`),
-                JSON.stringify(lhr, null, 2),
-                "utf8");
+            try {
+                const lhrJson = JSON.stringify(lhr, null, 2);
 
-            writeFileSync(
-                join(run.outputDir, `${iteration}-artifacts.json`),
-                JSON.stringify(artifacts, null, 2),
-                "utf8");
+                writeFileSync(
+                    join(run.outputDir, `${iteration}.json`),
+                    JSON.stringify(lhrJson, null, 2),
+                    "utf8");
+            } catch (e) {
+                console.log(chalk.yellow("Warning! Lighthouse results couldn't be parsed"));
+            }
+
+            try {
+                const artifactsJson = JSON.stringify(artifacts, null, 2);
+
+                writeFileSync(
+                    join(run.outputDir, `${iteration}-artifacts.json`),
+                    artifactsJson,
+                    "utf8");
+            } catch (e) {
+                console.log(chalk.yellow("Warning! Artifacts couldn't be parsed"));
+            }
 
             if (lhr && lhr.audits && lhr.audits["final-screenshot"]) {
                 if (lhr.audits["final-screenshot"].errorMessage) {

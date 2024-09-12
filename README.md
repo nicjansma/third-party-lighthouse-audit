@@ -1,8 +1,8 @@
 # Third Party Lighthouse Audit
 
-v1.1.0
+v1.2.0
 
-[http://nicj.net](http://nicj.net)
+[https://nicj.net](http://nicj.net)
 
 Licensed under the MIT license
 
@@ -68,6 +68,7 @@ Top-level configuration options:
 
 * `url` is the target URL
 * `extraHeaders` to send along with the Page request
+* `browserLaunch` for Chrome launch parameters
 * `outputDir` (optional) is the output directory.  Subdirectories will be created for each "run", with the Lighthouse artifacts, trace and screenshots.
 * `iterations` is how many times to run each.  Iterations will be interleaving (run 1, then run 2, then run 1, then run 2...)
 * `lighthouse` are options passed directly to the [Lighthouse API](https://github.com/GoogleChrome/lighthouse)
@@ -80,6 +81,8 @@ Top-level configuration options:
 
 ## Version History
 
+* v1.2.0 - 2024-09-11
+  * Added `browserLaunch` config option
 * v1.1.0 - 2024-09-10
   * Added `extraHeaders` config option
   * Upgraded to latest Lighthouse and other NPM packages
