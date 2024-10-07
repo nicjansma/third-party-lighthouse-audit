@@ -139,7 +139,7 @@ Auditor.prototype.run = async function() {
 
                 writeFileSync(
                     join(run.outputDir, `${iteration}.json`),
-                    JSON.stringify(lhrJson, null, 2),
+                    lhrJson,
                     "utf8");
             } catch (e) {
                 console.log(chalk.yellow("Warning! Lighthouse results couldn't be parsed"));
