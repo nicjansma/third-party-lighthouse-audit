@@ -1,6 +1,6 @@
 # Third Party Lighthouse Audit
 
-v1.2.0
+v1.3.0
 
 [https://nicj.net](http://nicj.net)
 
@@ -81,6 +81,8 @@ Top-level configuration options:
 
 ## Version History
 
+* v1.2.0 - 2024-10-07
+  * Added `summarize.js` and `summarize-multiple.js`
 * v1.2.0 - 2024-09-11
   * Added `browserLaunch` config option
 * v1.1.0 - 2024-09-10
