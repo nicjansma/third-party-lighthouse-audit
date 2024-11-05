@@ -29,7 +29,7 @@ if (typeof process.argv[2] !== "undefined") {
         }
 
         let json = fs.readFileSync(files[file]);
-        let obj = JSON.parse(JSON.parse(json));
+        let obj = JSON.parse(json);
 
         // use all audits from this file
         audits = Object.keys(obj.audits);
