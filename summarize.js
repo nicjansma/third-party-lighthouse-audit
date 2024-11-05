@@ -54,7 +54,7 @@ for (let file in files) {
 
     // read the JSON file and parse
     let json = fs.readFileSync(files[file]);
-    let obj = JSON.parse(JSON.parse(json));
+    let obj = JSON.parse(json);
 
     // append any data we find
     audits.forEach(function(auditName) {
